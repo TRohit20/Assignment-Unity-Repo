@@ -16,11 +16,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install Unity
-        uses: game-ci/unity/setup-unity@v1
-        with:
-          unityVersion: 2023.1.6
-          
+      - name: Setup Unity
+        uses: kuler90/setup-unity@v1.1.0
+
       - name: Build WebGL
         run: |
           unity -quit -batchmode -nographics -silent-crashes -logFile - -projectPath ./Hello\ World -executeMethod BuildScript.BuildWebGL
