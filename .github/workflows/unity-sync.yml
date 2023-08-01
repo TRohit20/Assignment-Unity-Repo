@@ -1,0 +1,43 @@
+name: Unity Sync to Next.js
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Hello World/build/**'  # Only trigger on changes in the 'build' folder(WebGL Build Folder)
+
+jobs:
+  build:
+    name: Build Unity Project and Sync to Next.js Repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Unity
+        uses: game-ci/unity/setup-unity@v1
+        with:
+          unityVersion: 2023.1.6
+          
+      - name: Build WebGL
+        run: |
+          unity -quit -batchmode -nographics -silent-crashes -logFile - -projectPath ./Hello\ World -executeMethod BuildScript.BuildWebGL
+
+      - name: Copy Build Files to Next.js
+        run: |
+          # Copy Unity WebGL build files to the Next.js public folder
+          mkdir -p ../Assignment-Next.js-Repo/frontend/public/build
+          cp -r ./Hello\ World/build/* ../Assignment-Next.js-Repo/frontend/public/build
+        working-directory: ./
+
+      - name: Commit Unity Changes to Next.js Repo
+        run: |
+          # Commit and push changes to Next.js repository
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Sync Unity build to Next.js public folder"
+          git push
+        working-directory: ../Assignment-Next.js-Repo/
